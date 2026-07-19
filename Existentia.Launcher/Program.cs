@@ -16,7 +16,7 @@ class Program
 
     static readonly List<Service> Services = new()
     {
-        new("Blazor (Web)", "dotnet watch run", Path.Combine(Root, "Existentia.Web"), "http://localhost:5000"),
+        new("Blazor (Web)", "dotnet watch run", Path.Combine(Root, "Existentia.Web"), "http://localhost:5213"),
         new("Quartz (Wiki)", "npx quartz build --serve", Path.Combine(Root, "Existentia.Wiki", "quartz"), "http://localhost:8080"),
     };
 
@@ -119,7 +119,8 @@ class Program
                     ShowMsg($"{svc.Name} iniciado!", ConsoleColor.Green);
                     if (!string.IsNullOrEmpty(svc.Url))
                     {
-                        Thread.Sleep(1500);
+                        ShowMsg("Aguardando servidor...", ConsoleColor.DarkGray);
+                        WaitForServer(svc.Url);
                         OpenBrowser(svc.Url);
                     }
                 }
@@ -259,29 +260,57 @@ class Program
         if (svc.Name != "Quartz (Wiki)") return true;
 
         var nodeModules = Path.Combine(svc.WorkDir, "node_modules");
-        if (Directory.Exists(nodeModules)) return true;
-
-        ShowMsg("node_modules não encontrado. Rodando npm install...", ConsoleColor.Cyan);
-        var psi = new ProcessStartInfo
+        if (!Directory.Exists(nodeModules))
         {
-            FileName = "npm",
-            Arguments = "install",
-            WorkingDirectory = svc.WorkDir,
-            UseShellExecute = true,
-            CreateNoWindow = false,
-        };
-        var proc = Process.Start(psi);
-        proc?.WaitForExit();
+            ShowMsg("node_modules não encontrado. Rodando npm install...", ConsoleColor.Cyan);
+            var psi = new ProcessStartInfo
+            {
+                FileName = "npm",
+                Arguments = "install",
+                WorkingDirectory = svc.WorkDir,
+                UseShellExecute = true,
+                CreateNoWindow = false,
+            };
+            var proc = Process.Start(psi);
+            proc?.WaitForExit();
 
-        if (proc?.ExitCode != 0)
-        {
-            ShowMsg("Falha ao instalar dependências do Quartz.", ConsoleColor.Red);
-            Thread.Sleep(1500);
-            return false;
+            if (proc?.ExitCode != 0)
+            {
+                ShowMsg("Falha ao instalar dependências do Quartz.", ConsoleColor.Red);
+                Thread.Sleep(1500);
+                return false;
+            }
+
+            ShowMsg("Dependências instaladas!", ConsoleColor.Green);
+            Thread.Sleep(500);
         }
 
-        ShowMsg("Dependências instaladas!", ConsoleColor.Green);
-        Thread.Sleep(500);
+        var pluginsDir = Path.Combine(svc.WorkDir, "quartz", "plugins");
+        if (!Directory.Exists(pluginsDir) || Directory.GetFileSystemEntries(pluginsDir, "*.ts").Length == 0)
+        {
+            ShowMsg("Plugins não encontrados. Rodando quartz plugin install...", ConsoleColor.Cyan);
+            var psi = new ProcessStartInfo
+            {
+                FileName = "npx",
+                Arguments = "quartz plugin install --from-config",
+                WorkingDirectory = svc.WorkDir,
+                UseShellExecute = true,
+                CreateNoWindow = false,
+            };
+            var proc = Process.Start(psi);
+            proc?.WaitForExit();
+
+            if (proc?.ExitCode != 0)
+            {
+                ShowMsg("Falha ao instalar plugins do Quartz.", ConsoleColor.Red);
+                Thread.Sleep(1500);
+                return false;
+            }
+
+            ShowMsg("Plugins instalados!", ConsoleColor.Green);
+            Thread.Sleep(500);
+        }
+
         return true;
     }
 
@@ -328,6 +357,27 @@ class Program
     static void OpenBrowser(string url)
     {
         Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+    }
+
+    static void WaitForServer(string url)
+    {
+        using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(1) };
+        var deadline = DateTime.Now.AddSeconds(30);
+
+        while (DateTime.Now < deadline)
+        {
+            try
+            {
+                var resp = http.GetAsync(url).Result;
+                if ((int)resp.StatusCode < 500)
+                    return;
+            }
+            catch { }
+
+            Thread.Sleep(500);
+        }
+
+        ShowMsg("Servidor não respondeu em 30s. Abrir manualmente com [O].", ConsoleColor.DarkYellow);
     }
 
     static void ShowMsg(string msg, ConsoleColor color)
