@@ -16,8 +16,8 @@ class Program
 
     static readonly List<Service> Services = new()
     {
-        new("Blazor (Web)", "dotnet watch run", Path.Combine(Root, "Existentia.Web"), "http://localhost:5213"),
-        new("Quartz (Wiki)", "npx quartz build --serve", Path.Combine(Root, "Existentia.Wiki", "quartz"), "http://localhost:8080"),
+        new("Blazor (Web)", "dotnet watch run", Path.Combine(Root, "Existentia.Web"), "http://localhost:5213", openBrowser: false),
+        new("Quartz (Wiki)", "npx quartz build --serve", Path.Combine(Root, "Existentia.Wiki", "quartz"), "http://localhost:8080", openBrowser: true),
     };
 
     static void Main(string[] args)
@@ -117,7 +117,7 @@ class Program
                     if (!EnsureDependencies(svc)) continue;
                     Start(svc);
                     ShowMsg($"{svc.Name} iniciado!", ConsoleColor.Green);
-                    if (!string.IsNullOrEmpty(svc.Url))
+                    if (svc.OpenBrowser && !string.IsNullOrEmpty(svc.Url))
                     {
                         ShowMsg("Aguardando servidor...", ConsoleColor.DarkGray);
                         WaitForServer(svc.Url);
@@ -285,8 +285,8 @@ class Program
             Thread.Sleep(500);
         }
 
-        var pluginsDir = Path.Combine(svc.WorkDir, "quartz", "plugins");
-        if (!Directory.Exists(pluginsDir) || Directory.GetFileSystemEntries(pluginsDir, "*.ts").Length == 0)
+        var pluginsFile = Path.Combine(svc.WorkDir, "quartz.config.plugins.ts");
+        if (!File.Exists(pluginsFile))
         {
             ShowMsg("Plugins não encontrados. Rodando quartz plugin install...", ConsoleColor.Cyan);
             var psi = new ProcessStartInfo
@@ -395,15 +395,17 @@ class Service
     public string Args;
     public string WorkDir;
     public string Url;
+    public bool OpenBrowser;
     public Process? Process;
     public bool IsRunning => Process != null && !Process.HasExited;
 
-    public Service(string name, string command, string workDir, string url)
+    public Service(string name, string command, string workDir, string url, bool openBrowser = true)
     {
         Name = name;
         Command = command;
         Args = "";
         WorkDir = workDir;
         Url = url;
+        OpenBrowser = openBrowser;
     }
 }
