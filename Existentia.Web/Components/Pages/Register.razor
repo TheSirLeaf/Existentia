@@ -1,0 +1,108 @@
+@page "/register"
+@layout EmptyLayout
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Identity
+@using Existentia.Web.Models
+@inject UserManager<Usuario> UserManager
+@inject NavigationManager Navigation
+
+<PageTitle>Registro</PageTitle>
+
+<div class="login-page">
+    <div class="login-container">
+        <h2>Criar Conta</h2>
+        <div class="title-divider"></div>
+
+    @if (erros.Count > 0)
+    {
+        <div class="alert alert-danger">
+            @foreach (var erro in erros)
+            {
+                <p>@erro</p>
+            }
+        </div>
+    }
+
+    <div class="form-group">
+            <label for="nome">Nome</label>
+            <input id="nome" type="text" class="form-control" @bind="nome" />
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" type="email" class="form-control" @bind="email" />
+        </div>
+
+        <div class="form-group">
+            <label for="senha">Senha</label>
+            <input id="senha" type="password" class="form-control" @bind="senha" />
+        </div>
+
+        <div class="form-group">
+            <label for="confirmar">Confirmar Senha</label>
+            <input id="confirmar" type="password" class="form-control" @bind="confirmarSenha" />
+        </div>
+
+        <button class="btn-submit" @onclick="HandleRegister" disabled="@cadastrando">
+            @(cadastrando ? "Cadastrando..." : "Cadastrar")
+        </button>
+
+        <p style="margin-top: 1rem;">
+            Já tem conta? <a href="/login">Fazer login</a>
+        </p>
+    </div>
+</div>
+
+@code {
+    private string nome = string.Empty;
+    private string email = string.Empty;
+    private string senha = string.Empty;
+    private string confirmarSenha = string.Empty;
+    private List<string> erros = new();
+    private bool cadastrando;
+
+    private async Task HandleRegister()
+    {
+        erros.Clear();
+
+        if (string.IsNullOrWhiteSpace(nome))
+            erros.Add("Nome é obrigatório.");
+        if (string.IsNullOrWhiteSpace(email))
+            erros.Add("Email é obrigatório.");
+        if (string.IsNullOrWhiteSpace(senha))
+            erros.Add("Senha é obrigatória.");
+        if (senha != confirmarSenha)
+            erros.Add("As senhas não coincidem.");
+        if (senha.Length < 6)
+            erros.Add("A senha deve ter no mínimo 6 caracteres.");
+
+        if (erros.Count > 0)
+            return;
+
+        cadastrando = true;
+
+        var usuario = new Usuario
+        {
+            UserName = email,
+            Email = email,
+            Nome = nome,
+            Papel = PapelUsuario.Jogador
+        };
+
+        var resultado = await UserManager.CreateAsync(usuario, senha);
+
+        if (resultado.Succeeded)
+        {
+            Navigation.NavigateTo("/login?msg=Conta criada com sucesso! Faça login.");
+        }
+        else
+        {
+            foreach (var erro in resultado.Errors)
+            {
+                erros.Add(erro.Description);
+            }
+        }
+
+        cadastrando = false;
+    }
+}

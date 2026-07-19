@@ -1,0 +1,54 @@
+@page "/login"
+@layout EmptyLayout
+
+<PageTitle>Login</PageTitle>
+
+<div class="login-page">
+    <div class="login-container">
+        <h2>Login</h2>
+        <div class="title-divider"></div>
+
+        @if (!string.IsNullOrEmpty(erro))
+        {
+            <div class="alert alert-danger">@erro</div>
+        }
+
+        @if (!string.IsNullOrEmpty(msg))
+        {
+            <div class="alert alert-success">@msg</div>
+        }
+
+        <form action="/api/account/login" method="post">
+            <AntiforgeryToken />
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input id="senha" name="senha" type="password" class="form-control" required />
+            </div>
+
+            <div class="form-group checkbox">
+                <label>
+                    <input type="checkbox" name="lembrarMe" value="true" /> Lembrar de mim
+                </label>
+            </div>
+
+            <button type="submit" class="btn-submit">Entrar</button>
+        </form>
+
+        <p style="margin-top: 1rem;">
+            Não tem conta? <a href="/register">Criar conta</a>
+        </p>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "erro")]
+    private string? erro { get; set; }
+
+    [SupplyParameterFromQuery(Name = "msg")]
+    private string? msg { get; set; }
+}

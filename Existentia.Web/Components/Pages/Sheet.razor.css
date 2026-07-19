@@ -1,0 +1,257 @@
+/* ── Page wrapper ─────────────── */
+.sheet-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2em 0;
+    background: #0b0b0d;
+    color: #e0e0e0;
+    font-family: system-ui, sans-serif;
+}
+
+/* ── Layout ────────────────────── */
+.attributes-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+    width: 520px;
+}
+
+.group-section {
+    position: relative;
+    min-height: 3rem;
+    transition: min-height .3s;
+}
+
+.group-section.open {
+    min-height: 12rem;
+}
+/* ── Ribbon ────────────────────── */
+.ribbon1 {
+    position: relative;
+    font-size: 23px;
+    font-weight: bold;
+    color: #fff;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: pointer;
+    z-index: 2;
+
+    --r: 0.6em;
+    --s: 2em;
+    --t: 565px;
+    display: inline-block;
+    min-width: 150px;
+    padding-inline: calc(var(--r) + .3em);
+    line-height: 1.8;
+    border-bottom: 0 solid #0005;
+
+    clip-path: polygon(
+        0 0, var(--r) .5lh, 0 1lh,
+        calc(100% - var(--r)) 100%,
+        calc(100% - var(--r) + 0.01em) 100%,
+        calc(100% - var(--r) + 0.02em) 100%,
+        calc(100% - var(--r) + 0.03em) 100%,
+        calc(100% - var(--r) + 0.04em) 100%,
+        100% 50%,
+        calc(100% - var(--r)) 0
+    );
+}
+
+.ribbon1 span {
+    font-size: 0.8em;
+    letter-spacing: 0.1em;
+}
+
+.ribbon1::after {
+    content: attr(data-value);
+
+    position: absolute;
+
+    right: calc(var(--s)/10);
+    bottom: calc(var(--s) * -.85);
+
+    min-width: 1.6em;
+    height: 1.6em;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: .9em;
+    font-weight: bold;
+    color: #fff;
+
+    border-radius: .25em;
+
+    pointer-events: none;
+}
+
+/* ── Centralização das Cores (Variáveis CSS) ── */
+.group-section[data-color="red"]   { --group-color: rgb(233, 58, 39); }
+.group-section[data-color="blue"]  { --group-color: rgb(0, 81, 255); }
+.group-section[data-color="green"] { --group-color: rgb(0, 172, 0); }
+.group-section[data-color="red"]   { --group-color-darker: color-mix(in srgb, var(--group-color) 15%, black); }
+.group-section[data-color="blue"]  { --group-color-darker: color-mix(in srgb, var(--group-color) 15%, black); }
+.group-section[data-color="green"] { --group-color-darker: color-mix(in srgb, var(--group-color) 15%, black); }
+
+/* ── Ribbon colors ─────────────── */
+/* Agora ela puxa dinamicamente a cor definida no pai */
+.group-section .ribbon1 { 
+    background: var(--group-color); 
+}
+
+/* ── Reveal wrapper ───────────── */
+.group-reveal {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 1.5em;
+    z-index: 1;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.5s ease, opacity 0.35s ease;
+    transition-delay: 0s, 0s;
+}
+
+.group-section.open .group-reveal {
+    max-height: 400px;
+    opacity: 1;
+    transition-delay: 0.35s, 0.35s;
+}
+
+/* ── Attribute row ─────────────── */
+.attr-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.4em;
+    margin-top: 2.5em;
+    padding: 0 0.15em;
+}
+
+/* ── Attribute card ────────────── */
+.attr-card {
+    position: relative;
+    padding: 0.4em 0.2em 0.6em 0.2em;
+    text-align: center;
+    min-height: 3.8em;
+}
+
+.attr-card::before,
+.attr-card::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0; right: 0;
+}
+
+/* O gradiente agora utiliza a variável herdada do pai automaticamente */
+.attr-card::before {
+    height: 2px;
+    top: 0;
+    border-radius: 1px;
+    opacity: 0.5;
+    background: linear-gradient(90deg, transparent 0%, var(--group-color) 20%, var(--group-color) 80%, transparent 100%);
+}
+
+.attr-card::after {
+    height: 1px;
+    bottom: 0;
+    opacity: 0.3;
+    background: linear-gradient(90deg, transparent 0%, var(--group-color) 20%, var(--group-color) 80%, transparent 100%);
+}
+
+.card-ribbon {
+    --f: 0.5em;
+    --r: 0.6em;
+    position: absolute;
+    left: -0.1em;
+    top: calc(-1 * var(--f));
+    padding: 0.25em 0.5em;
+    font-size: 1.2em;
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    line-height: 1;
+    z-index: 3;
+    width: 2.5em;
+    box-sizing: border-box;
+    border-left: var(--f) solid rgba(0,0,0,0.35);
+    border-bottom: var(--r) solid transparent;
+    clip-path: polygon(
+        var(--f) 0, 100% 0, 100% 100%,
+        calc(50% + var(--f)/2) calc(100% - var(--r)),
+        var(--f) 100%, var(--f) var(--f), 0 var(--f)
+    );
+}
+.card-ribbon[data-color="red"]   { background: var(--group-color); }
+.card-ribbon[data-color="blue"]  { background:var(--group-color); }
+.card-ribbon[data-color="green"] { background: var(--group-color); }
+
+.card-head {
+    padding-left: 3.2em;
+    min-height: 2em;
+}
+
+.card-title-area {
+    text-align: left;
+}
+
+.card-label {
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #8888aa;
+    display: block;
+    line-height: 1.2;
+}
+
+.card-ruler {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+    margin-top: 0.1em;
+}
+
+.ruler-star {
+    font-size: 0.5em;
+    color: #8888aa;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.ruler-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(136,136,170,0.5), transparent);
+}
+
+.card-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15em;
+    justify-content: center;
+    min-height: 0.8em;
+    margin-top: 0.3em;
+}
+.skill-tag {
+    font-size: 0.55em;
+    background: rgba(22, 33, 62, 0.6);
+    color: #8888aa;
+    padding: 0.05em 0.25em;
+    border-radius: 2px;
+}
+
+.card-mod {
+    display: inline-block;
+    margin-top: 0.25em;
+    font-size: 0.75em;
+    font-weight: 700;
+    padding: 0.1em 0.5em;
+    border-radius: 10px;
+    line-height: 1.3;
+}
+.attr-card[data-color="red"]   .card-mod { background: var(--group-color-darker);  color: var(--group-color); }
+.attr-card[data-color="blue"]  .card-mod { background: var(--group-color-darker);  color: var(--group-color); }
+.attr-card[data-color="green"] .card-mod { background: var(--group-color-darker);  color: var(--group-color); }

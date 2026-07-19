@@ -1,0 +1,115 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@using Existentia.Web.Models
+@inject SignInManager<Usuario> SignInManager
+@inject UserManager<Usuario> UserManager
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Existentia</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="weather">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3" style="margin-top: auto; padding-bottom: 1rem;">
+            <div class="nav-link" style="cursor: pointer;" @onclick="ToggleTheme">
+                <span class="bi bi-circle-half-nav-menu" aria-hidden="true"></span>
+                @(_isDark ? "Modo Claro" : "Modo Escuro")
+            </div>
+
+            @if (logado)
+            {
+                <span class="nav-link" style="color: #d7d7d7;">
+                    @nomeUsuario
+                </span>
+                <button class="btn btn-sm btn-outline-light w-100" @onclick="HandleLogout">
+                    Sair
+                </button>
+            }
+            else
+            {
+                <NavLink class="nav-link" href="login">
+                    <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Login
+                </NavLink>
+            }
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool logado;
+    private string nomeUsuario = string.Empty;
+    private bool _isDark = true;
+    private bool _themeLoaded;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthState != null)
+        {
+            var state = await AuthState;
+            logado = state.User.Identity?.IsAuthenticated ?? false;
+            if (logado)
+            {
+                var user = await UserManager.GetUserAsync(state.User);
+                nomeUsuario = user?.Nome ?? user?.Email ?? "";
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_themeLoaded)
+        {
+            _themeLoaded = true;
+            var saved = await JS.InvokeAsync<string>("localStorage.getItem", "existentia-theme");
+            if (saved == "light" && _isDark)
+            {
+                _isDark = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task ToggleTheme()
+    {
+        _isDark = !_isDark;
+        await JS.InvokeVoidAsync("backgroundManager.setTheme", _isDark ? "dark" : "light");
+    }
+
+    private async Task HandleLogout()
+    {
+        if (SignInManager.Context != null)
+        {
+            await SignInManager.SignOutAsync();
+            logado = false;
+            nomeUsuario = string.Empty;
+            StateHasChanged();
+        }
+    }
+}

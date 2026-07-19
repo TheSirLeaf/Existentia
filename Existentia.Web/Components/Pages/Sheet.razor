@@ -1,0 +1,106 @@
+@page "/sheet"
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+
+<div class="sheet-page">
+    <section class="attributes-grid">
+        @foreach (var group in groups)
+        {
+            <div class="group-section" data-color="@group.Color" @ref="group.SectionRef">
+                <div class="ribbon1" data-value="@group.Value"
+                     @ref="group.RibbonRef"
+                     @onclick="() => ToggleGroup(group)">
+                    <span>@group.Name</span>
+                </div>
+                <div class="group-reveal">
+                    <div class="attr-row">
+                        @foreach (var card in group.Cards)
+                        {
+                            <div class="attr-card" data-color="@group.Color">
+                                <div class="card-head">
+                                    <div class="card-ribbon" data-color="@group.Color">@card.Score</div>
+                                    <div class="card-title-area">
+                                        <span class="card-label">@card.Name</span>
+                                        <div class="card-ruler">
+                                            <span class="ruler-star">✦</span>
+                                            <span class="ruler-line"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-skills">
+                                    @foreach (var skill in card.Skills)
+                                    {
+                                        <span class="skill-tag">@skill</span>
+                                    }
+                                </div>
+                                <div class="card-mod">@(card.Mod >= 0 ? $"+{card.Mod}" : card.Mod.ToString())</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </section>
+</div>
+
+@code {
+    private List<AttributeGroup> groups = new()
+    {
+        new("VITALITY", "08", "red", new()
+        {
+            new("Strength", 12, new() { "Athletics", "Melee" }, 3),
+            new("Endurance", 10, new() { "Resist" }, 2),
+            new("Might", 8, new() { "Intimidate" }, 1)
+        }),
+        new("AGILITY", "10", "blue", new()
+        {
+            new("Dexterity", 14, new() { "Stealth", "Sleight" }, 4),
+            new("Reflexes", 9, new() { "Dodge" }, 1),
+            new("Speed", 11, new() { "Initiative" }, 2)
+        }),
+        new("WITS", "06", "green", new()
+        {
+            new("Intellect", 13, new() { "Lore", "Investigate" }, 3),
+            new("Perception", 7, new() { "Spot" }, 0),
+            new("Willpower", 10, new() { "Resolve" }, 2)
+        })
+    };
+
+    private void ToggleGroup(AttributeGroup group)
+    {
+        group.PendingAnimation = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        foreach (var group in groups)
+        {
+            if (group.PendingAnimation)
+            {
+                group.PendingAnimation = false;
+                await JS.InvokeVoidAsync("animateRibbon", group.RibbonRef, group.SectionRef);
+            }
+        }
+    }
+
+    private class AttributeGroup
+    {
+        public string Name { get; }
+        public string Value { get; }
+        public string Color { get; }
+        public List<AttributeCard> Cards { get; }
+        public ElementReference RibbonRef { get; set; }
+        public ElementReference SectionRef { get; set; }
+        public bool PendingAnimation { get; set; }
+
+        public AttributeGroup(string name, string value, string color, List<AttributeCard> cards)
+        {
+            Name = name;
+            Value = value;
+            Color = color;
+            Cards = cards;
+        }
+    }
+
+    private record AttributeCard(string Name, int Score, List<string> Skills, int Mod);
+}
