@@ -285,32 +285,6 @@ class Program
             Thread.Sleep(500);
         }
 
-        var pluginsFile = Path.Combine(svc.WorkDir, "quartz.config.plugins.ts");
-        if (!File.Exists(pluginsFile))
-        {
-            ShowMsg("Plugins não encontrados. Rodando quartz plugin install...", ConsoleColor.Cyan);
-            var psi = new ProcessStartInfo
-            {
-                FileName = "npx",
-                Arguments = "quartz plugin install --from-config",
-                WorkingDirectory = svc.WorkDir,
-                UseShellExecute = true,
-                CreateNoWindow = false,
-            };
-            var proc = Process.Start(psi);
-            proc?.WaitForExit();
-
-            if (proc?.ExitCode != 0)
-            {
-                ShowMsg("Falha ao instalar plugins do Quartz.", ConsoleColor.Red);
-                Thread.Sleep(1500);
-                return false;
-            }
-
-            ShowMsg("Plugins instalados!", ConsoleColor.Green);
-            Thread.Sleep(500);
-        }
-
         return true;
     }
 
