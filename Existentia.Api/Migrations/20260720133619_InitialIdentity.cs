@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Existentia.Web.Migrations
+namespace Existentia.Api.Migrations
 {
     /// <inheritdoc />
     public partial class InitialIdentity : Migration

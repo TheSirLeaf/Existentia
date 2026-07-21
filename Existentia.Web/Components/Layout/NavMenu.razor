@@ -1,8 +1,6 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.Components.Authorization
-@using Existentia.Web.Models
-@inject SignInManager<Usuario> SignInManager
-@inject UserManager<Usuario> UserManager
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Existentia.Web.Services
+@inject ApiAuthStateProvider AuthState
 @inject IJSRuntime JS
 @rendermode InteractiveServer
 
@@ -66,18 +64,17 @@
     private bool _themeLoaded;
 
     [CascadingParameter]
-    private Task<AuthenticationState>? AuthState { get; set; }
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        if (AuthState != null)
+        if (AuthStateTask != null)
         {
-            var state = await AuthState;
+            var state = await AuthStateTask;
             logado = state.User.Identity?.IsAuthenticated ?? false;
             if (logado)
             {
-                var user = await UserManager.GetUserAsync(state.User);
-                nomeUsuario = user?.Nome ?? user?.Email ?? "";
+                nomeUsuario = AuthState.GetNome() ?? AuthState.GetEmail() ?? "";
             }
         }
     }
@@ -102,14 +99,11 @@
         await JS.InvokeVoidAsync("backgroundManager.setTheme", _isDark ? "dark" : "light");
     }
 
-    private async Task HandleLogout()
+    private void HandleLogout()
     {
-        if (SignInManager.Context != null)
-        {
-            await SignInManager.SignOutAsync();
-            logado = false;
-            nomeUsuario = string.Empty;
-            StateHasChanged();
-        }
+        AuthState.Logout();
+        logado = false;
+        nomeUsuario = string.Empty;
+        StateHasChanged();
     }
 }

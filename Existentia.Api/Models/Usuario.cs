@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace Existentia.Web.Models;
+namespace Existentia.Api.Models;
 
 public class Usuario : IdentityUser
 {

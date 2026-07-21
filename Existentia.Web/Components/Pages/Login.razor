@@ -1,5 +1,9 @@
 @page "/login"
 @layout EmptyLayout
+@rendermode InteractiveServer
+@inject AuthApiClient AuthApi
+@inject ApiAuthStateProvider AuthState
+@inject NavigationManager Nav
 
 <PageTitle>Login</PageTitle>
 
@@ -18,26 +22,19 @@
             <div class="alert alert-success">@msg</div>
         }
 
-        <form action="/api/account/login" method="post">
-            <AntiforgeryToken />
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" class="form-control" required />
-            </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" type="email" class="form-control" @bind="email" />
+        </div>
 
-            <div class="form-group">
-                <label for="senha">Senha</label>
-                <input id="senha" name="senha" type="password" class="form-control" required />
-            </div>
+        <div class="form-group">
+            <label for="senha">Senha</label>
+            <input id="senha" type="password" class="form-control" @bind="senha" />
+        </div>
 
-            <div class="form-group checkbox">
-                <label>
-                    <input type="checkbox" name="lembrarMe" value="true" /> Lembrar de mim
-                </label>
-            </div>
-
-            <button type="submit" class="btn-submit">Entrar</button>
-        </form>
+        <button class="btn-submit" @onclick="HandleLogin" disabled="@entrando">
+            @(entrando ? "Entrando..." : "Entrar")
+        </button>
 
         <p style="margin-top: 1rem;">
             Não tem conta? <a href="/register">Criar conta</a>
@@ -51,4 +48,42 @@
 
     [SupplyParameterFromQuery(Name = "msg")]
     private string? msg { get; set; }
+
+    private string email = string.Empty;
+    private string senha = string.Empty;
+    private bool entrando;
+
+    private async Task HandleLogin()
+    {
+        erro = null;
+
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(senha))
+        {
+            erro = "Email e senha são obrigatórios.";
+            return;
+        }
+
+        entrando = true;
+
+        var (success, token, error) = await AuthApi.Login(email, senha);
+
+        if (success && token != null)
+        {
+            var userInfo = await AuthApi.GetUserInfo(token);
+            AuthState.SetAuth(new ApiAuthState
+            {
+                Token = token,
+                Nome = userInfo?.Nome ?? "",
+                Email = userInfo?.Email ?? email,
+                Papel = userInfo?.Papel ?? "",
+            });
+            Nav.NavigateTo("/");
+        }
+        else
+        {
+            erro = error ?? "Erro ao fazer login.";
+        }
+
+        entrando = false;
+    }
 }

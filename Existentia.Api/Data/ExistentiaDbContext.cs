@@ -1,8 +1,8 @@
-using Existentia.Web.Models;
+using Existentia.Api.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Existentia.Web.Data;
+namespace Existentia.Api.Data;
 
 public class ExistentiaDbContext : IdentityDbContext<Usuario>
 {

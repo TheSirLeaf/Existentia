@@ -1,51 +1,33 @@
 using Existentia.Web.Components;
-using Existentia.Web.Data;
-using Existentia.Web.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Existentia.Web.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddCascadingAuthenticationState();
 
-builder.Services.AddDbContext<ExistentiaDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddIdentity<Usuario, IdentityRole>(options =>
+// API client
+var apiBase = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5090";
+builder.Services.AddHttpClient("Api", client =>
 {
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6;
-    options.User.RequireUniqueEmail = true;
-})
-.AddEntityFrameworkStores<ExistentiaDbContext>()
-.AddDefaultTokenProviders();
-
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/login";
-    options.LogoutPath = "/api/account/logout";
-    options.AccessDeniedPath = "/login";
+    client.BaseAddress = new Uri(apiBase);
 });
 
-// Começo solução
-builder.Services.AddHttpContextAccessor();
-// Fim solução
-builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<ApiAuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<ApiAuthStateProvider>());
+builder.Services.AddScoped<AuthApiClient>(sp =>
+{
+    var authState = sp.GetRequiredService<ApiAuthStateProvider>();
+    var factory = sp.GetRequiredService<IHttpClientFactory>();
+    var client = factory.CreateClient("Api");
+    return new AuthApiClient(client);
+});
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddControllers();
-
 var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ExistentiaDbContext>();
-    db.Database.Migrate();
-}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -58,11 +40,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
 app.MapStaticAssets();
-app.MapControllers();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

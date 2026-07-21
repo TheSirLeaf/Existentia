@@ -16,6 +16,7 @@ class Program
 
     static readonly List<Service> Services = new()
     {
+        new("API", "dotnet run", Path.Combine(Root, "Existentia.Api"), "http://localhost:5009", openBrowser: false),
         new("Blazor (Web)", "dotnet watch run", Path.Combine(Root, "Existentia.Web"), "http://localhost:5213", openBrowser: false),
         new("Quartz (Wiki)", "npx quartz build --serve", Path.Combine(Root, "Existentia.Wiki", "quartz"), "http://localhost:8080", openBrowser: true),
     };
@@ -43,7 +44,7 @@ class Program
                 Console.ResetColor();
             }
 
-            Console.WriteLine("  [3] Obsidian (Vault)");
+            Console.WriteLine("  [4] Obsidian (Vault)");
             Console.WriteLine();
             Console.WriteLine("  [A] Funções Avançadas");
             Console.WriteLine("  [O] Abrir no navegador    [S] Sair", ConsoleColor.DarkYellow);
@@ -85,7 +86,7 @@ class Program
                 continue;
             }
 
-            if (key == '3')
+            if (key == '4')
             {
                 if (Directory.Exists(VaultPath))
                 {

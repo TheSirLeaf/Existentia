@@ -2,6 +2,17 @@
 
 Sistema de RPG digital com fichas de personagem, wiki de lore, mapa interativo, chat com rolagem de dados e sincronização com FoundryVTT.
 
+## Arquitetura
+
+```
+Existentia.Api        →  API REST (auth, banco de dados, regras de negócio)
+Existentia.Web        →  Blazor Server (consome a API via HTTP)
+Existentia.Wiki       →  Quartz wiki (markdown do vault Obsidian)
+Existentia.Launcher   →  Gerencia todos os serviços
+```
+
+A API é a única que acessa o banco (`existentia.db`). Todos os clientes (web, desktop, mobile) consomem a API via HTTP com JWT.
+
 ## Dependências
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
@@ -15,15 +26,18 @@ Sistema de RPG digital com fichas de personagem, wiki de lore, mapa interativo, 
 git clone https://github.com/TheSirLeaf/Existentia.git
 cd Existentia
 
-# Backend (Blazor Server)
-cd Existentia.Web
+# API (banco + auth)
+cd Existentia.Api
 dotnet restore
+dotnet run
+
+# Em outro terminal — Blazor (Web)
+cd ../Existentia.Web
 dotnet watch run
 
-# Wiki (Quartz)
+# Em outro terminal — Wiki (Quartz)
 cd ../Existentia.Wiki/quartz
 npm i
-npx quartz plugin install --from-config
 npx quartz build --serve
 ```
 
@@ -52,8 +66,9 @@ Ou dê double-click em `Iniciar.bat`.
 
 | Atalho | O que faz |
 |--------|-----------|
-| `[1]` | Inicia Blazor + abre navegador |
-| `[2]` | Inicia Quartz + abre navegador |
-| `[3]` | Abre o vault no Explorer |
+| `[1]` | API (banco + auth) |
+| `[2]` | Blazor (Web) |
+| `[3]` | Quartz (Wiki) |
+| `[4]` | Obsidian (Vault) |
 | `[A]` | Funções avançadas (copiar vault, backup) |
 | `[S]` | Fecha tudo e sai |

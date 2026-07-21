@@ -1,10 +1,8 @@
 @page "/register"
 @layout EmptyLayout
 @rendermode InteractiveServer
-@using Microsoft.AspNetCore.Identity
-@using Existentia.Web.Models
-@inject UserManager<Usuario> UserManager
-@inject NavigationManager Navigation
+@inject AuthApiClient AuthApi
+@inject NavigationManager Nav
 
 <PageTitle>Registro</PageTitle>
 
@@ -81,26 +79,15 @@
 
         cadastrando = true;
 
-        var usuario = new Usuario
-        {
-            UserName = email,
-            Email = email,
-            Nome = nome,
-            Papel = PapelUsuario.Jogador
-        };
+        var (success, error) = await AuthApi.Register(nome, email, senha);
 
-        var resultado = await UserManager.CreateAsync(usuario, senha);
-
-        if (resultado.Succeeded)
+        if (success)
         {
-            Navigation.NavigateTo("/login?msg=Conta criada com sucesso! Faça login.");
+            Nav.NavigateTo("/login?msg=Conta criada com sucesso! Faça login.");
         }
         else
         {
-            foreach (var erro in resultado.Errors)
-            {
-                erros.Add(erro.Description);
-            }
+            erros.Add(error ?? "Erro ao criar conta.");
         }
 
         cadastrando = false;

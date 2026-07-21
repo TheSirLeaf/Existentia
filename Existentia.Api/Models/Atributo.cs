@@ -1,4 +1,4 @@
-namespace Existentia.Web.Models;
+namespace Existentia.Api.Models;
 
 public class Atributo
 {
