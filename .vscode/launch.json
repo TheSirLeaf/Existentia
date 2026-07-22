@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "API",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/Existentia.Api/Existentia.Api.csproj",
+      "launchConfigurationId": "dotnet.launch.json.Existentia.Api",
+      "cwd": "${workspaceFolder}/Existentia.Api",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Blazor (Web)",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/Existentia.Web/Existentia.Web.csproj",
+      "launchConfigurationId": "dotnet.launch.json.Existentia.Web",
+      "cwd": "${workspaceFolder}/Existentia.Web",
+      "stopAtEntry": false
+    },
+    {
+      "name": "API + Blazor",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/Existentia.Api/Existentia.Api.csproj",
+      "launchConfigurationId": "dotnet.launch.json.Existentia.Api",
+      "cwd": "${workspaceFolder}/Existentia.Api",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Attach ao Blazor",
+      "type": "dotnet",
+      "request": "attach",
+      "processId": "${command:dotnet.attachProcessId}",
+      "projectPath": "${workspaceFolder}/Existentia.Web/Existentia.Web.csproj"
+    }
+  ]
+}

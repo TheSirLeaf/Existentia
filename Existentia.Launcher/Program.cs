@@ -47,7 +47,7 @@ class Program
             Console.WriteLine("  [4] Obsidian (Vault)");
             Console.WriteLine();
             Console.WriteLine("  [A] Funções Avançadas");
-            Console.WriteLine("  [O] Abrir no navegador    [S] Sair", ConsoleColor.DarkYellow);
+            Console.WriteLine("  [D] Abrir no VS Code (Debug)    [O] Abrir no navegador    [S] Sair", ConsoleColor.DarkYellow);
             Console.WriteLine();
             Console.Write("  Opção: ", ConsoleColor.White);
 
@@ -83,6 +83,29 @@ class Program
             if (key == 'a' || key == 'A')
             {
                 ShowAdvancedMenu();
+                continue;
+            }
+
+            if (key == 'd' || key == 'D')
+            {
+                var vscodePath = Path.Combine(Root, ".vscode", "launch.json");
+                if (!File.Exists(vscodePath))
+                {
+                    ShowMsg(".vscode/launch.json não encontrado.", ConsoleColor.Red);
+                    Thread.Sleep(1000);
+                    continue;
+                }
+
+                ShowMsg("Para debugar no VS Code:", ConsoleColor.Cyan);
+                ShowMsg("  1. Abra o projeto no VS Code", ConsoleColor.White);
+                ShowMsg("  2. Pressione F5 e selecione:", ConsoleColor.White);
+                ShowMsg("     • 'Blazor (Web)' pra debugar o frontend", ConsoleColor.DarkGray);
+                ShowMsg("     • 'API' pra debugar o backend", ConsoleColor.DarkGray);
+                ShowMsg("     • 'API + Blazor' pra ambos", ConsoleColor.DarkGray);
+                ShowMsg("", ConsoleColor.White);
+                ShowMsg("O VS Code inicia os processos com debugger.", ConsoleColor.DarkGray);
+                ShowMsg("Não use o Launcher pra debugar.", ConsoleColor.DarkGray);
+                Thread.Sleep(4000);
                 continue;
             }
 

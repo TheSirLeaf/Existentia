@@ -77,7 +77,8 @@
     //   </div>
     // ============================================================================
     function detectStyle() {
-        return document.querySelector(".page") ? "constelacao" : "baroque";
+        // Agora o ashfall é o padrão para o layout de login/home (sem .page)
+        return document.querySelector(".page") ? "constelacao" : "ashfall";
     }
 
 
@@ -149,6 +150,9 @@
             // Buddha: símbolos manji flutuantes
             // Pega o canvas por getElementById internamente
             window.buddhaBackground.start(p.buddha);
+        } else if (style === "ashfall" && window.ashfallBackground) {
+            // Ashfall: Shader animado com partículas (Three.js)
+            window.ashfallBackground.start(c, p.ashfall || {});
         }
 
         activeStyle = style;
@@ -213,6 +217,7 @@
                 if (p && p[activeStyle]) {
                     var bg = activeStyle === "constelacao" ? window.constelacaoBackground
                            : activeStyle === "baroque" ? window.baroqueBackground
+                           : activeStyle === "ashfall" ? window.ashfallBackground
                            : window.buddhaBackground;
                     if (bg && bg.updatePalette) bg.updatePalette(p[activeStyle]);
                 }
