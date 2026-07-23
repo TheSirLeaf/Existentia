@@ -1,12 +1,26 @@
 ﻿@inherits LayoutComponentBase
-
+@inject IJSRuntime JS
+@inject LayoutState LayoutState
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
+    @if (LayoutState.ShowSidebar)
+    {
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+    }
     <main>
         <div class="top-row px-4">
+            <a href="javascript:void(0)" class="menu @(LayoutState.ShowSidebar ? "active" : "")"
+               @onclick="ToggleSidebar">
+
+                @for (int i = 0; i < 9; i++)
+                {
+                    <div class="pix"></div>
+                }
+            </a>
+            <button @onclick="ToggleTheme" class="btn btn-sm btn-outline-secondary">
+                🌙 / ☀️
+            </button>
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
 
@@ -21,3 +35,16 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    async Task ToggleTheme()
+    {
+        await JS.InvokeVoidAsync("themeSwitcher.toggle");
+    }
+    private void ToggleSidebar()
+    {
+        LayoutState.ShowSidebar = !LayoutState.ShowSidebar;
+    }
+}
+
+

@@ -496,3 +496,6 @@ Existentia.Wiki/backups/
 # Launcher temp
 Existentia.Launcher/bin/
 Existentia.Launcher/obj/
+
+# Obsidian
+Existentia.Obsidian/

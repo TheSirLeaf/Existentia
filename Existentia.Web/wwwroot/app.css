@@ -1,57 +1,30 @@
-html {
-    --bg-sidebar: linear-gradient(180deg, #052e16 0%, #14532d 70%);
-    --bg-toprow: rgba(0, 0, 0, 0.4);
-    --text-primary: #ffffff;
-    --text-secondary: #d7d7d7;
-    --text-brand: #4ade80;
-    --border-toprow: rgba(74, 222, 128, 0.15);
-    --nav-link-hover: rgba(74, 222, 128, 0.1);
-    --nav-link-active: rgba(74, 222, 128, 0.25);
+:root, [data-bs-theme="light"] {
+  --sidebar-bg: linear-gradient(180deg, rgb(97, 0, 100) 0%, #a80a66 70%);
+  --top-row-bg: #f7f7f7;
+  --top-row-border: #d6d5d5;
+  --text-color: #212529;
+  --link-color: #fd0d85;
+  --nav-link-color: #d7d7d7;
+  --nav-link-hover-bg: rgba(255, 255, 255, 0.1);
+  --nav-link-active-bg: rgba(255, 255, 255, 0.37);
+}
+[data-bs-theme="dark"] {
+  --sidebar-bg: linear-gradient(180deg, #092b00 0%, #006b00 70%);
+  --top-row-bg: #0b2b00;
+  --top-row-border: #033a03;
+  --text-color: #e0e0e0;
+  --link-color: #00ff00;
+  --nav-link-color: #c0c0c0;
+  --nav-link-hover-bg: rgba(255, 255, 255, 0.08);
+  --nav-link-active-bg: rgba(255, 255, 255, 0.25);
 }
 
-html {
-    background: #0a0a0f;
-}
-
-body {
-    background: transparent !important;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-html.theme-dark {
-    background: #0a0a0f;
-    --bg-sidebar: linear-gradient(180deg, #052e16 0%, #14532d 70%);
-    --bg-toprow: rgba(0, 0, 0, 0.4);
-    --text-primary: #ffffff;
-    --text-secondary: #d7d7d7;
-    --text-brand: #4ade80;
-    --border-toprow: rgba(74, 222, 128, 0.15);
-    --nav-link-hover: rgba(74, 222, 128, 0.1);
-    --nav-link-active: rgba(74, 222, 128, 0.25);
-}
-
-html.theme-light {
-    background: #f0eef5;
-    --bg-sidebar: linear-gradient(180deg, #4c1d95 0%, #6d28d9 70%);
-    --bg-toprow: #ffffff;
-    --text-primary: #ffffff;
-    --text-secondary: #e2e0ea;
-    --text-brand: #c4b5fd;
-    --border-toprow: #d6d5d5;
-    --nav-link-hover: rgba(255, 255, 255, 0.12);
-    --nav-link-active: rgba(255, 255, 255, 0.25);
-}
-
-#bg-canvas {
-    background: #0a0a0f;
-}
-
-html.theme-light #bg-canvas {
-    background: #f0eef5;
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, Saquans-serif;
 }
 
 a, .btn-link {
-    color: #006bb7;
+    color: var(--link-color);
 }
 
 .btn-primary {

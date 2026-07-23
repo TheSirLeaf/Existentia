@@ -1,19 +1,5 @@
-﻿<!-- Começo solução -->
-@using Microsoft.AspNetCore.Http
-@inject IHttpContextAccessor HttpContextAccessor
-
-@{
-    var theme = "dark";
-    if (HttpContextAccessor.HttpContext?.Request.Cookies.TryGetValue("existentia-theme", out var cookieTheme) == true
-        && (cookieTheme == "dark" || cookieTheme == "light"))
-    {
-        theme = cookieTheme;
-    }
-}
-<!-- Fim solução -->
-
-<!DOCTYPE html>
-<html lang="en" class="theme-@theme">
+﻿<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8" />
@@ -23,23 +9,16 @@
     <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["Existentia.Web.styles.css"]" />
-    <link rel="stylesheet" href="@Assets["css/sheet-animations.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <script src="js/backgrounds/themes.js"></script>
-    <script src="js/backgrounds/constelacao.js"></script>
-    <script src="js/backgrounds/buddha.js"></script>
-    <script src="js/backgrounds/baroque-bg.js"></script>
-    <script src="js/backgrounds/background.js"></script>
     <HeadOutlet />
 </head>
 
 <body>
-    <BackgroundCanvas />
-    <Routes />
+    <Routes @rendermode="InteractiveServer" />
     <ReconnectModal />
+    <script src="@Assets["theme-switcher.js"]"></script>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
-    <script src="@Assets["js/sheet.js"]"></script>
 </body>
 
 </html>

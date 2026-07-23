@@ -1,89 +1,15 @@
-@page "/login"
-@layout EmptyLayout
-@rendermode InteractiveServer
-@inject AuthApiClient AuthApi
-@inject ApiAuthStateProvider AuthState
-@inject NavigationManager Nav
+﻿@page "/login"
+@inject LayoutState LayoutState
 
 <PageTitle>Login</PageTitle>
 
-<div class="login-page">
-    <div class="login-container">
-        <h2>Login</h2>
-        <div class="title-divider"></div>
+<h1>Login</h1>
 
-        @if (!string.IsNullOrEmpty(erro))
-        {
-            <div class="alert alert-danger">@erro</div>
-        }
+Teste
 
-        @if (!string.IsNullOrEmpty(msg))
-        {
-            <div class="alert alert-success">@msg</div>
-        }
-
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input id="email" type="email" class="form-control" @bind="email" />
-        </div>
-
-        <div class="form-group">
-            <label for="senha">Senha</label>
-            <input id="senha" type="password" class="form-control" @bind="senha" />
-        </div>
-
-        <button class="btn-submit" @onclick="HandleLogin" disabled="@entrando">
-            @(entrando ? "Entrando..." : "Entrar")
-        </button>
-
-        <p style="margin-top: 1rem;">
-            Não tem conta? <a href="/register">Criar conta</a>
-        </p>
-    </div>
-</div>
-
-@code {
-    [SupplyParameterFromQuery(Name = "erro")]
-    private string? erro { get; set; }
-
-    [SupplyParameterFromQuery(Name = "msg")]
-    private string? msg { get; set; }
-
-    private string email = string.Empty;
-    private string senha = string.Empty;
-    private bool entrando;
-
-    private async Task HandleLogin()
+@code{
+    protected override void OnInitialized()
     {
-        erro = null;
-
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(senha))
-        {
-            erro = "Email e senha são obrigatórios.";
-            return;
-        }
-
-        entrando = true;
-
-        var (success, token, error) = await AuthApi.Login(email, senha);
-
-        if (success && token != null)
-        {
-            var userInfo = await AuthApi.GetUserInfo(token);
-            AuthState.SetAuth(new ApiAuthState
-            {
-                Token = token,
-                Nome = userInfo?.Nome ?? "",
-                Email = userInfo?.Email ?? email,
-                Papel = userInfo?.Papel ?? "",
-            });
-            Nav.NavigateTo("/");
-        }
-        else
-        {
-            erro = error ?? "Erro ao fazer login.";
-        }
-
-        entrando = false;
+        LayoutState.ShowSidebar = false;
     }
 }

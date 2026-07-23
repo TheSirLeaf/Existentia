@@ -1,12 +1,6 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
-@using Existentia.Web.Services
-@inject ApiAuthStateProvider AuthState
-@inject IJSRuntime JS
-@rendermode InteractiveServer
-
-<div class="top-row ps-3 navbar navbar-dark">
+﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Existentia</a>
+        <a class="navbar-brand" href="">Existentia.Web</a>
     </div>
 </div>
 
@@ -31,79 +25,6 @@
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
             </NavLink>
         </div>
-
-        <div class="nav-item px-3" style="margin-top: auto; padding-bottom: 1rem;">
-            <div class="nav-link" style="cursor: pointer;" @onclick="ToggleTheme">
-                <span class="bi bi-circle-half-nav-menu" aria-hidden="true"></span>
-                @(_isDark ? "Modo Claro" : "Modo Escuro")
-            </div>
-
-            @if (logado)
-            {
-                <span class="nav-link" style="color: #d7d7d7;">
-                    @nomeUsuario
-                </span>
-                <button class="btn btn-sm btn-outline-light w-100" @onclick="HandleLogout">
-                    Sair
-                </button>
-            }
-            else
-            {
-                <NavLink class="nav-link" href="login">
-                    <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Login
-                </NavLink>
-            }
-        </div>
     </nav>
 </div>
 
-@code {
-    private bool logado;
-    private string nomeUsuario = string.Empty;
-    private bool _isDark = true;
-    private bool _themeLoaded;
-
-    [CascadingParameter]
-    private Task<AuthenticationState>? AuthStateTask { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (AuthStateTask != null)
-        {
-            var state = await AuthStateTask;
-            logado = state.User.Identity?.IsAuthenticated ?? false;
-            if (logado)
-            {
-                nomeUsuario = AuthState.GetNome() ?? AuthState.GetEmail() ?? "";
-            }
-        }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !_themeLoaded)
-        {
-            _themeLoaded = true;
-            var saved = await JS.InvokeAsync<string>("localStorage.getItem", "existentia-theme");
-            if (saved == "light" && _isDark)
-            {
-                _isDark = false;
-                StateHasChanged();
-            }
-        }
-    }
-
-    private async Task ToggleTheme()
-    {
-        _isDark = !_isDark;
-        await JS.InvokeVoidAsync("backgroundManager.setTheme", _isDark ? "dark" : "light");
-    }
-
-    private void HandleLogout()
-    {
-        AuthState.Logout();
-        logado = false;
-        nomeUsuario = string.Empty;
-        StateHasChanged();
-    }
-}
